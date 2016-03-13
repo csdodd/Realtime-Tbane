@@ -29,6 +29,7 @@ import net.colindodd.realtimeruter.library.DownloadedDataListener;
 import net.colindodd.realtimeruter.library.RealtimeRuterLibrary;
 import net.colindodd.realtimeruter.library.model.RuterEvent;
 import net.colindodd.realtimeruter.ui.AboutDialog;
+import net.colindodd.realtimeruter.ui.LinesOverlay;
 import net.colindodd.realtimeruter.ui.LoadingDialog;
 import net.colindodd.realtimeruter.ui.PopupAdapter;
 import net.colindodd.realtimeruter.util.CurrentUserLocation;
@@ -60,12 +61,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onResume();
         Permiso.getInstance().setActivity(this);
         loadData();
+        if (!runForeverThread.isAlive()) {
+            runForeverThread.start();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         ruterLib.stop();
+        runForeverThread.interrupt();
     }
 
     @Override
@@ -117,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void downloadEnded() {
                 loadingDialog.hide();
                 userLocation.requestLocationPermission();
-                showAllEvents();
             }
 
             @Override
@@ -154,22 +158,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void loadData() {
         ruterLib.loadLiveData(this.downloadedDataListener);
-    }
-
-    private boolean showAllEvents() {
-        final ArrayList<RuterEvent> events = ruterLib.getAllEvents();
-        final Hashtable<String, RuterEvent> activeEvents = new Hashtable<>();
-        if (events != null) {
-            for (final RuterEvent event : events) {
-                if (event != null && event.isValidForMap()) {
-                    activeEvents.put(event.getVehicleRef(), event);
-                }
-            }
-            handleMarkers(activeEvents);
-            formatSnippets();
-            return true;
-        }
-        return false;
     }
 
     private void showTimeOutDialog() {
@@ -233,6 +221,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
+    }
+
+    private final Thread runForeverThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            while(true) {
+                showAllEvents();
+                try {
+                    Thread.sleep(1000);
+                } catch (final InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    });
+
+    private void showAllEvents() {
+        final ArrayList<RuterEvent> events = ruterLib.getAllEvents();
+        final Hashtable<String, RuterEvent> activeEvents = new Hashtable<>();
+        if (events != null) {
+            for (final RuterEvent event : events) {
+                if (event != null && event.isValidForMap()) {
+                    activeEvents.put(event.getVehicleRef(), event);
+                }
+            }
+            handleMarkers(activeEvents);
+            formatSnippets();
+        }
     }
 
     private Hashtable<String, Marker> currentMarkers = new Hashtable<>();
@@ -381,7 +397,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         LinesOverlay.highlightLine(currentFilteredLineSelection);
-        showAllEvents();
         return true;
     }
 

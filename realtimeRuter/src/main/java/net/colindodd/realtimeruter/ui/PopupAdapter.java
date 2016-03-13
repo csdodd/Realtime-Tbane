@@ -8,7 +8,6 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
 
-import net.colindodd.realtimeruter.LinesOverlay;
 import net.colindodd.realtimeruter.R;
 
 public class PopupAdapter implements InfoWindowAdapter {
