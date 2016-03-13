@@ -246,25 +246,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
             mapMarkers.updateMap(this.gMap, activeEvents, this.currentFilteredLineSelection);
-            formatSnippets();
         }
-    }
-
-
-
-    private void formatSnippets() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                gMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater()));
-                gMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-
-                    public void onInfoWindowClick(Marker marker) {
-                        marker.hideInfoWindow();
-                    }
-                });
-            }
-        });
     }
 
     @Override
@@ -316,7 +298,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         LinesOverlay.renderLines(getApplicationContext(), gMap);
+        formatSnippets();
         lookAtOslo();
+    }
+
+    private void formatSnippets() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                gMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater()));
+                gMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+                    public void onInfoWindowClick(Marker marker) {
+                        marker.hideInfoWindow();
+                    }
+                });
+            }
+        });
     }
 
     private void lookAtOslo() {
