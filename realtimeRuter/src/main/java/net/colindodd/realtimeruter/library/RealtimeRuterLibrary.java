@@ -17,7 +17,7 @@ public class RealtimeRuterLibrary {
     private VehicleEvents allVehicles;
     private DataDownloader dd;
 
-    public void loadLiveData(final DataDownloadListener listener) {
+    public void loadLiveData(final DownloadedDataListener listener) {
         new Thread(new Runnable() {
             public void run() {
                 boolean keepRunning = true;
@@ -36,7 +36,7 @@ public class RealtimeRuterLibrary {
         }).start();
     }
 
-    private void getLatestDataThread(final DataDownloadListener listener) {
+    private void getLatestDataThread(final DownloadedDataListener listener) {
         getLatestData(listener);
 
         try {
@@ -44,30 +44,35 @@ public class RealtimeRuterLibrary {
         } catch (final InterruptedException e) {
             e.printStackTrace();
             System.out.println("Loading thread didn't join");
+            listener.timedOut();
             return;
         }
 
         if (loadingThread.isAlive()) {
             System.out.println("Loadingthread timed out");
+            listener.timedOut();
         }
     }
 
-    private void getLatestData(final DataDownloadListener listener) {
+    private void getLatestData(final DownloadedDataListener listener) {
         loadingThread = new Thread(new Runnable() {
             public void run() {
                 if (dd == null) {
                     dd = new DataDownloader(listener);
                 }
 
+                listener.downloadStarted();
                 dd.run(Lines.AllStops);
                 while (!dd.hasFinishedProcessing()) {
                     try {
                         Thread.sleep(100);
                     } catch (final Exception e) {
+                        listener.errorOccurred();
                     }
                 }
                 allStations = dd.getDownloadedData();
                 allVehicles = null;
+                listener.downloadEnded();
             }
         });
         loadingThread.start();

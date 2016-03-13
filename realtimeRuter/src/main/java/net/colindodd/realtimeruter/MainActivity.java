@@ -1,7 +1,6 @@
 package net.colindodd.realtimeruter;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
@@ -16,12 +15,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager.BadTokenException;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -30,22 +29,22 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.greysonparrelli.permiso.Permiso;
 
-import net.colindodd.realtimeruter.library.DataDownloadListener;
+import net.colindodd.realtimeruter.library.DownloadedDataListener;
 import net.colindodd.realtimeruter.library.RealtimeRuterLibrary;
-import net.colindodd.realtimeruter.library.model.Lines;
 import net.colindodd.realtimeruter.library.model.RuterEvent;
+import net.colindodd.realtimeruter.ui.LoadingDialog;
 import net.colindodd.realtimeruter.util.CurrentUserLocation;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
     private RealtimeRuterLibrary ruterLib;
     private GoogleMap gMap;
-    private ProgressDialog loadingBox;
+    private LoadingDialog loadingDialog;
     private Context context = this;
-    private DataDownloadListener listener;
+    private DownloadedDataListener downloadedDataListener;
     private CurrentUserLocation userLocation;
     private int currentFilteredLineSelection = 0;
 
@@ -56,12 +55,7 @@ public class MainActivity extends AppCompatActivity {
         Permiso.getInstance().setActivity(this);
 
         init();
-        if (savedInstanceState == null) {
-            lookAtOslo();
-        }
-
         loadData();
-        mainLoop();
     }
 
     @Override
@@ -77,11 +71,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
-        if (!initGoogleMap()) {
-            handleDeviceNotSupported();
-            return;
-        }
-
+        initGoogleMap();
         initRuterLib();
         initUi();
         initUserLocation();
@@ -96,26 +86,56 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void zoomIntoMap() {
-        final Location currentLocation = userLocation.getCurrentLocation();
-        if (currentLocation != null) {
-            gMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude())));
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final Location currentLocation = userLocation.getCurrentLocation();
+                if (currentLocation != null) {
+                    gMap.setMyLocationEnabled(true);
+                    gMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude())));
+                }
 
-        final CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
-        gMap.animateCamera(zoom, 2000, null);
+                final CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+                gMap.animateCamera(zoom, 2000, null);
+            }
+        });
     }
 
     private void initRuterLib() {
-        ruterLib = new RealtimeRuterLibrary();
-        listener = new DataDownloadListener();
+        this.ruterLib = new RealtimeRuterLibrary();
+        this.downloadedDataListener = new DownloadedDataListener() {
+            @Override
+            public void downloadStarted() {
+                loadingDialog.show();
+            }
+
+            @Override
+            public void downloadEnded() {
+                loadingDialog.hide();
+                userLocation.requestLocationPermission();
+                showAllEvents();
+            }
+
+            @Override
+            public void errorOccurred() {
+                showErrorLoadingDataDialog();
+            }
+
+            @Override
+            public void timedOut() {
+                showTimeOutDialog();
+            }
+
+            @Override
+            public void newStationLoaded(final String stationName) {
+                loadingDialog.update(stationName);
+            }
+        };
     }
 
-    private boolean initGoogleMap() {
-        gMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-        if (gMap == null) return false;
-        gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        LinesOverlay.renderLines(getApplicationContext(), gMap);
-        return true;
+    private void initGoogleMap() {
+        final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     private void initUi() {
@@ -131,92 +151,18 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG).show();
             }
         });
+
+        this.loadingDialog = new LoadingDialog(this);
     }
 
     private void initUserLocation() {
         this.userLocation = new CurrentUserLocation(this, locationPermissionGrantedListener);
     }
 
-    private void lookAtOslo() {
-        final LatLng Oslo = new LatLng(59.912095, 10.752182);
-        final CameraUpdate center = CameraUpdateFactory.newLatLng(Oslo);
-        final CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
-
-        gMap.moveCamera(center);
-        gMap.animateCamera(zoom);
-    }
-
     private void loadData() {
-        showLoadingDialog();
-        new Thread(new Runnable() {
-            public void run() {
-                ruterLib.loadLiveData(listener);
-            }
-        }).start();
+        ruterLib.loadLiveData(this.downloadedDataListener);
     }
-
-    private void mainLoop() {
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                boolean keepRunning = true;
-                while (keepRunning) {
-                    try {
-                        if (!showAllEvents()) {
-                            updateLoadingDialog();
-                            if (ruterLib.timedOut()) {
-                                keepRunning = false;
-                                showTimeOutDialog();
-                            }
-                            Thread.sleep(100);
-                        } else {
-                            Thread.sleep(1000);
-                        }
-                        updateLoadingUi();
-                    } catch (final InterruptedException e) {
-                        e.printStackTrace();
-                        keepRunning = false;
-                    }
-                }
-            }
-        });
-        thread.start();
-    }
-
-    private void showLoadingDialog() {
-        loadingBox = new ProgressDialog(this);
-        loadingBox.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        loadingBox.setMessage(getResources().getString(R.string.loading_ruter));
-        loadingBox.setTitle("");
-        loadingBox.setIndeterminate(false);
-        loadingBox.setCancelable(false);
-        loadingBox.setMax(Lines.AllStops.length);
-        loadingBox.show();
-    }
-
-    private void updateLoadingDialog() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (loadingBox.isShowing()) {
-                    loadingBox.setProgress(listener.getLoadedCounter());
-                    loadingBox.setMessage(getResources().getString(R.string.loading_ruter) + "\n" + listener.getLastLoadedStation());
-                }
-            }
-        });
-    }
-
-    private void hideLoadingDialog() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (loadingBox.isShowing()) {
-                    loadingBox.dismiss();
-                    userLocation.requestLocationPermission();
-                }
-            }
-        });
-    }
-
+/*
     private void updateLoadingUi() {
         runOnUiThread(new Runnable() {
             @Override
@@ -242,12 +188,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+*/
     private boolean showAllEvents() {
         final ArrayList<RuterEvent> events = ruterLib.getAllEvents();
         final Hashtable<String, RuterEvent> activeEvents = new Hashtable<>();
         if (events != null) {
-            hideLoadingDialog();
             for (final RuterEvent event : events) {
                 if (event != null && event.isValidForMap()) {
                     activeEvents.put(event.getVehicleRef(), event);
@@ -261,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showTimeOutDialog() {
-        hideLoadingDialog();
+        loadingDialog.hide();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -482,5 +427,27 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return lineNumber != currentFilteredLineSelection;
         }
+    }
+
+    @Override
+    public void onMapReady(final GoogleMap googleMap) {
+        this.gMap = googleMap;
+        if (gMap == null) {
+            handleDeviceNotSupported();
+            return;
+        }
+
+        gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        LinesOverlay.renderLines(getApplicationContext(), gMap);
+        lookAtOslo();
+    }
+
+    private void lookAtOslo() {
+        final LatLng Oslo = new LatLng(59.912095, 10.752182);
+        final CameraUpdate center = CameraUpdateFactory.newLatLng(Oslo);
+        final CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
+
+        gMap.moveCamera(center);
+        gMap.animateCamera(zoom);
     }
 }

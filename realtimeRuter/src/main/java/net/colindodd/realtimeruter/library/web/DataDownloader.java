@@ -1,6 +1,6 @@
 package net.colindodd.realtimeruter.library.web;
 
-import net.colindodd.realtimeruter.library.DataDownloadListener;
+import net.colindodd.realtimeruter.library.DownloadedDataListener;
 import net.colindodd.realtimeruter.library.dataaccess.RuterStation;
 import net.colindodd.realtimeruter.library.model.Station;
 
@@ -12,13 +12,13 @@ import java.util.concurrent.TimeUnit;
 
 public final class DataDownloader {
 
-    private final DataDownloadListener listener;
+    private final DownloadedDataListener listener;
 
     private ArrayList<RuterStation> allStations;
     private boolean hasFinishedProcessing;
     private boolean wasLoadedCorrectly;
 
-    public DataDownloader(final DataDownloadListener listener) {
+    public DataDownloader(final DownloadedDataListener listener) {
         this.listener = listener;
     }
 
@@ -31,10 +31,6 @@ public final class DataDownloader {
         hasFinishedProcessing = false;
         wasLoadedCorrectly = true;
         allStations = new ArrayList<>(stations.size());
-
-        if (listener != null) {
-            listener.startDownloading();
-        }
 
         final ExecutorService pool = Executors.newFixedThreadPool(10);
         for (final Station station : stations) {
@@ -49,10 +45,6 @@ public final class DataDownloader {
         }
 
         hasFinishedProcessing = true;
-
-        if (listener != null) {
-            listener.endDownloading();
-        }
     }
 
     private class DownloadStationTask implements Runnable {
@@ -76,13 +68,13 @@ public final class DataDownloader {
         private void handleErrorLoadingStation() {
             wasLoadedCorrectly = false;
             if (listener != null) {
-                listener.errorInLoading();
+                listener.errorOccurred();
             }
         }
 
         private void handleStationLoaded() {
             if (listener != null) {
-                listener.stationLoaded(stationToDownload.name());
+                listener.newStationLoaded(stationToDownload.name());
             }
         }
     }
