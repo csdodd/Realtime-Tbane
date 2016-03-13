@@ -1,4 +1,4 @@
-package net.colindodd.realtimeruter;
+package net.colindodd.realtimeruter.ui;
 
 import android.content.Context;
 
@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import net.colindodd.realtimeruter.R;
 import net.colindodd.realtimeruter.library.model.GeographicalLocation;
 import net.colindodd.realtimeruter.library.model.Lines;
 import net.colindodd.realtimeruter.library.model.Location;

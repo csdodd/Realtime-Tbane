@@ -28,7 +28,9 @@ import com.greysonparrelli.permiso.Permiso;
 import net.colindodd.realtimeruter.library.DownloadedDataListener;
 import net.colindodd.realtimeruter.library.RealtimeRuterLibrary;
 import net.colindodd.realtimeruter.library.model.RuterEvent;
+import net.colindodd.realtimeruter.ui.AboutDialog;
 import net.colindodd.realtimeruter.ui.LoadingDialog;
+import net.colindodd.realtimeruter.ui.PopupAdapter;
 import net.colindodd.realtimeruter.util.CurrentUserLocation;
 
 import java.util.ArrayList;
