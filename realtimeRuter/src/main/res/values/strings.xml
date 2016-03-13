@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Realtime T-bane</string>
+    <string name="about">About</string>
+    <string name="line">Line</string>
+    <string name="share">Share</string>
+    <string name="dataprovidedby">Data provided by</string>
+    <string name="underlicense">Data used under Norwegian License for Open Government Data (NLOD)</string>
+    <string name="close">Close</string>
+    <string name="all">All</string>
+    <string name="line1">Line 1</string>
+    <string name="line2">Line 2</string>
+    <string name="line3">Line 3</string>
+    <string name="line4">Line 4</string>
+    <string name="line5">Line 5</string>
+    <string name="loading_ruter">Loading from Ruter</string>
+    <string name="late">late</string>
+    <string name="early">early</string>
+    <string name="next_station">Next station</string>
+    <string name="arriving_in">Arriving in</string>
+    <string name="departing_in">Departing in</string>
+    <string name="at">At</string>
+    <string name="timeout_error">Unable to get data from Ruter at this time. Please try again later.</string>
+    <string name="device_error">Your device does not support Google Maps. Realtime T-bane will not work on this device.</string>
+    <string name="errorLoadingData">It wasn\'t possible to load from Ruter. Functionality may be affected.</string>
+</resources>

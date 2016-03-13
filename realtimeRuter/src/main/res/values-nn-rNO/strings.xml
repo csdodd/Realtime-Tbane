@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Sanntid T-bane</string>
+    <string name="about">Om</string>
+    <string name="line">Linje</string>
+    <string name="share">Del</string>
+    <string name="dataprovidedby">Åpen data fra</string>
+    <string name="underlicense">Data brukt under Norsk lisens for offenlig bruk (NLOD)</string>
+    <string name="close">Lukk</string>
+    <string name="all">Alle</string>
+    <string name="line1">Linje 1</string>
+    <string name="line2">Linje 2</string>
+    <string name="line3">Linje 3</string>
+    <string name="line4">Linje 4</string>
+    <string name="line5">Linje 5</string>
+    <string name="loading_ruter">Laster inn fra Ruter</string>
+    <string name="late">forsinket</string>
+    <string name="early">foran planen</string>
+    <string name="next_station">Neste stasjon</string>
+    <string name="arriving_in">Kommer om</string>
+    <string name="departing_in">Avgang om</string>
+    <string name="at">På</string>
+    <string name="timeout_error">Ruter er midlertidig utilgjengelig. Vennligst prøv igjen senere.</string>
+    <string name="device_error">Enheten støtter ikke Google Maps. Sanntid T-bane vil ikke fungere på denne enheten.</string>
+    <string name="errorLoadingData">Det var ikke mulig å laste ned fra Ruter. Noe informasjon kan derfor være utelatt.</string>
+</resources>

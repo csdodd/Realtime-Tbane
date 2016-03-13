@@ -1,0 +1,37 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/filter_line"
+        android:icon="@drawable/ic_menu_view"
+        app:showAsAction="ifRoom"
+        android:title="@string/line"
+        android:titleCondensed="@string/line">
+        <menu>
+            <item
+                android:id="@+id/menuLineAll"
+                android:title="@string/all" />
+	        <item
+	            android:id="@+id/menuLine1"
+	            android:title="@string/line1" />
+            <item
+                android:id="@+id/menuLine2"
+                android:title="@string/line2" />
+            <item
+                android:id="@+id/menuLine3"
+                android:title="@string/line3" />
+            <item
+                android:id="@+id/menuLine4"
+                android:title="@string/line4" />
+            <item
+                android:id="@+id/menuLine5"
+                android:title="@string/line5" />
+	    </menu>
+    </item>
+    <item
+        android:id="@+id/about"
+        android:icon="@drawable/ic_menu_info_details"
+        app:showAsAction="ifRoom"
+        android:title="@string/about"
+        android:titleCondensed="@string/about">
+    </item>
+</menu>

@@ -1,0 +1,14 @@
+<resources>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="line1_overlay">#33009CDC</color>
+    <color name="line2_overlay">#33EA5B0B</color>
+    <color name="line3_overlay">#33A863A5</color>
+    <color name="line4_overlay">#3300489A</color>
+    <color name="line5_overlay">#333AAA35</color>
+    <color name="line1_overlay_active">#ff009CDC</color>
+    <color name="line2_overlay_active">#ffEA5B0B</color>
+    <color name="line3_overlay_active">#ffA863A5</color>
+    <color name="line4_overlay_active">#ff00489A</color>
+    <color name="line5_overlay_active">#ff3AAA35</color>
+</resources>
