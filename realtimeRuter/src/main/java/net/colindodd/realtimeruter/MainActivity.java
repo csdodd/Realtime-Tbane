@@ -18,11 +18,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.greysonparrelli.permiso.Permiso;
 
 import net.colindodd.realtimeruter.library.DownloadedDataListener;
@@ -31,11 +28,11 @@ import net.colindodd.realtimeruter.library.model.RuterEvent;
 import net.colindodd.realtimeruter.ui.AboutDialog;
 import net.colindodd.realtimeruter.ui.LinesOverlay;
 import net.colindodd.realtimeruter.ui.LoadingDialog;
+import net.colindodd.realtimeruter.ui.MapMarkers;
 import net.colindodd.realtimeruter.ui.PopupAdapter;
 import net.colindodd.realtimeruter.util.CurrentUserLocation;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -45,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Context context = this;
     private DownloadedDataListener downloadedDataListener;
     private CurrentUserLocation userLocation;
+    private MapMarkers mapMarkers;
     private int currentFilteredLineSelection = 0;
 
     @Override
@@ -144,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void initGoogleMap() {
         final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        this.mapMarkers = new MapMarkers(this);
     }
 
     private void initUi() {
@@ -246,105 +245,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     activeEvents.put(event.getVehicleRef(), event);
                 }
             }
-            handleMarkers(activeEvents);
+            mapMarkers.updateMap(this.gMap, activeEvents, this.currentFilteredLineSelection);
             formatSnippets();
         }
     }
 
-    private Hashtable<String, Marker> currentMarkers = new Hashtable<>();
 
-    private void handleMarkers(final Hashtable<String, RuterEvent> activeEvents) {
-        Enumeration<String> e = currentMarkers.keys();
-        while (e.hasMoreElements()) {
-            String vehicleRef = e.nextElement();
-            if (activeEvents.containsKey(vehicleRef)) {
-                addMarker(activeEvents.get(vehicleRef), false);
-                activeEvents.remove(vehicleRef);
-            } else {
-                removeMarker(currentMarkers.get(vehicleRef));
-                currentMarkers.remove(vehicleRef);
-            }
-        }
-
-        e = activeEvents.keys();
-        while (e.hasMoreElements()) {
-            RuterEvent event = activeEvents.get(e.nextElement());
-            addMarker(event, true);
-        }
-    }
-
-    private void addMarker(final RuterEvent event, final boolean createMarker) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (createMarker) {
-                    Marker newMarker = gMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(event.getGeographicalLocation().getLatitude(), event.getGeographicalLocation().getLongitude()))
-                            .title(event.getPublishedLineName() + event.getDestinationDisplay())
-                            .snippet(generateSnippet(event))
-                            .icon(getBitmapDescriptor(event.getPublishedLineName()))
-                            .anchor(0.5f, 0.5f));
-                    newMarker.setVisible(!filterEvent(event.getPublishedLineName()));
-                    currentMarkers.put(event.getVehicleRef(), newMarker);
-                } else {
-                    Marker currentMarker = currentMarkers.get(event.getVehicleRef());
-                    if (currentMarker == null) return;
-                    currentMarker.setPosition(new LatLng(event.getGeographicalLocation().getLatitude(), event.getGeographicalLocation().getLongitude()));
-                    currentMarker.setTitle(event.getPublishedLineName() + event.getDestinationDisplay());
-                    currentMarker.setSnippet(generateSnippet(event));
-                    currentMarker.setVisible(!filterEvent(event.getPublishedLineName()));
-                    if (currentMarker.isInfoWindowShown()) {
-                        currentMarker.hideInfoWindow();
-                        currentMarker.showInfoWindow();
-                    }
-                }
-            }
-
-            private BitmapDescriptor getBitmapDescriptor(final int lineName) {
-                switch (lineName) {
-                    case 1:
-                        return BitmapDescriptorFactory.fromResource(R.drawable.logo_line_1_small);
-                    case 2:
-                        return BitmapDescriptorFactory.fromResource(R.drawable.logo_line_2_small);
-                    case 3:
-                        return BitmapDescriptorFactory.fromResource(R.drawable.logo_line_3_small);
-                    case 4:
-                        return BitmapDescriptorFactory.fromResource(R.drawable.logo_line_4_small);
-                    case 5:
-                        return BitmapDescriptorFactory.fromResource(R.drawable.logo_line_5_small);
-                }
-                return BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher);
-            }
-
-            private String generateSnippet(RuterEvent event) {
-                StringBuilder retVal = new StringBuilder();
-                if (event.isVehicleAtStop()) {
-                    retVal.append(getResources().getString(R.string.at) + " ");
-                    retVal.append(event.previousStationName() + "\n");
-                    retVal.append(getResources().getString(R.string.next_station) + " " + event.getStationName());
-                } else {
-                    retVal.append(getResources().getString(R.string.next_station) + " " + event.getStationName() + "\n");
-                    retVal.append(getResources().getString(R.string.arriving_in) + " ");
-                    retVal.append(event.getDurationUntilExpectedArrivalAsString());
-                    retVal.append("\n" + event.getDelayInfo(getResources().getString(R.string.late), getResources().getString(R.string.early)));
-                }
-
-                return retVal.toString();
-            }
-        });
-    }
-
-    private void removeMarker(final Marker marker) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (marker != null) {
-                    marker.setVisible(false);
-                    marker.remove();
-                }
-            }
-        });
-    }
 
     private void formatSnippets() {
         runOnUiThread(new Runnable() {
@@ -398,17 +304,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         LinesOverlay.highlightLine(currentFilteredLineSelection);
         return true;
-    }
-
-    private boolean filterEvent(int lineNumber) {
-        switch (currentFilteredLineSelection) {
-            case 0:
-                return false;
-            case 4:
-                return lineNumber != 4 && lineNumber != 6;
-            default:
-                return lineNumber != currentFilteredLineSelection;
-        }
     }
 
     @Override
