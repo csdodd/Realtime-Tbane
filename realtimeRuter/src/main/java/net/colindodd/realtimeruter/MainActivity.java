@@ -11,11 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.WindowManager.BadTokenException;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -141,17 +137,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void initUi() {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        final ImageView imgDataLoadError = (ImageView) findViewById(R.id.imgDataLoadError);
-        imgDataLoadError.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                Toast.makeText(MainActivity.this,
-                        getResources().getString(R.string.errorLoadingData),
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-
         this.loadingDialog = new LoadingDialog(this);
     }
 
@@ -162,33 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void loadData() {
         ruterLib.loadLiveData(this.downloadedDataListener);
     }
-/*
-    private void updateLoadingUi() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ProgressBar loadingSpinner = (ProgressBar) findViewById(R.id.spinLoader);
-                ImageView imgDataLoadError = (ImageView) findViewById(R.id.imgDataLoadError);
-                if (listener.isDownloading()) loadingSpinner.setVisibility(ProgressBar.VISIBLE);
-                else {
-                    if (loadingSpinner.isShown()) clearMap();
-                    loadingSpinner.setVisibility(ProgressBar.GONE);
-                }
 
-                if (listener.isLoadError()) {
-                    imgDataLoadError.setVisibility(ImageView.VISIBLE);
-                    showErrorLoadingDataDialog();
-                } else imgDataLoadError.setVisibility(ImageView.GONE);
-            }
-
-            private void clearMap() {
-                gMap.clear();
-                currentMarkers.clear();
-                LinesOverlay.renderLines(getApplicationContext(), gMap);
-            }
-        });
-    }
-*/
     private boolean showAllEvents() {
         final ArrayList<RuterEvent> events = ruterLib.getAllEvents();
         final Hashtable<String, RuterEvent> activeEvents = new Hashtable<>();

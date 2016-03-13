@@ -12,6 +12,7 @@ import org.joda.time.DateTimeZone;
 import java.util.ArrayList;
 
 public class RealtimeRuterLibrary {
+    private final int MILLIS_BETWEEN_RELOAD = 180000;
     private Thread loadingThread;
     private ArrayList<RuterStation> allStations;
     private VehicleEvents allVehicles;
@@ -26,7 +27,7 @@ public class RealtimeRuterLibrary {
                         getLatestDataThread(listener);
                     }
                     try {
-                        Thread.sleep(180000);
+                        Thread.sleep(MILLIS_BETWEEN_RELOAD);
                     } catch (final InterruptedException e) {
                         e.printStackTrace();
                         keepRunning = false;
@@ -40,7 +41,7 @@ public class RealtimeRuterLibrary {
         getLatestData(listener);
 
         try {
-            loadingThread.join(180000);
+            loadingThread.join(MILLIS_BETWEEN_RELOAD);
         } catch (final InterruptedException e) {
             e.printStackTrace();
             System.out.println("Loading thread didn't join");
