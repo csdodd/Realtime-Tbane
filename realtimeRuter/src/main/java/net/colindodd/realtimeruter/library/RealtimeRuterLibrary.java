@@ -13,17 +13,29 @@ import java.util.ArrayList;
 
 public class RealtimeRuterLibrary {
     private final int MILLIS_BETWEEN_RELOAD = 180000;
-    private Thread loadingThread;
+    private Thread runForeverThread;
+    private Thread loadDataThread;
     private ArrayList<RuterStation> allStations;
     private VehicleEvents allVehicles;
     private DataDownloader dd;
 
     public void loadLiveData(final DownloadedDataListener listener) {
-        new Thread(new Runnable() {
+        if (this.runForeverThread == null || !this.runForeverThread.isAlive()) {
+            startRunForeverThread(listener);
+        }
+    }
+
+    public void stop() {
+        this.loadDataThread.interrupt();
+        this.runForeverThread.interrupt();
+    }
+
+    private void startRunForeverThread(final DownloadedDataListener listener) {
+        this.runForeverThread = new Thread(new Runnable() {
             public void run() {
                 boolean keepRunning = true;
                 while (keepRunning) {
-                    if (loadingThread == null || !loadingThread.isAlive()) {
+                    if (loadDataThread == null || !loadDataThread.isAlive()) {
                         getLatestDataThread(listener);
                     }
                     try {
@@ -34,14 +46,15 @@ public class RealtimeRuterLibrary {
                     }
                 }
             }
-        }).start();
+        });
+        runForeverThread.start();
     }
 
     private void getLatestDataThread(final DownloadedDataListener listener) {
         getLatestData(listener);
 
         try {
-            loadingThread.join(MILLIS_BETWEEN_RELOAD);
+            loadDataThread.join(MILLIS_BETWEEN_RELOAD);
         } catch (final InterruptedException e) {
             e.printStackTrace();
             System.out.println("Loading thread didn't join");
@@ -49,14 +62,14 @@ public class RealtimeRuterLibrary {
             return;
         }
 
-        if (loadingThread.isAlive()) {
+        if (loadDataThread.isAlive()) {
             System.out.println("Loadingthread timed out");
             listener.timedOut();
         }
     }
 
     private void getLatestData(final DownloadedDataListener listener) {
-        loadingThread = new Thread(new Runnable() {
+        loadDataThread = new Thread(new Runnable() {
             public void run() {
                 if (dd == null) {
                     dd = new DataDownloader(listener);
@@ -76,7 +89,7 @@ public class RealtimeRuterLibrary {
                 listener.downloadEnded();
             }
         });
-        loadingThread.start();
+        loadDataThread.start();
     }
 
     public ArrayList<RuterEvent> getAllEvents() {

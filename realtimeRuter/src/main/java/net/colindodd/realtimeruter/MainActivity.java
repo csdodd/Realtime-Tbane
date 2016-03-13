@@ -51,13 +51,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Permiso.getInstance().setActivity(this);
 
         init();
-        loadData();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Permiso.getInstance().setActivity(this);
+        loadData();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ruterLib.stop();
     }
 
     @Override
