@@ -7,7 +7,8 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,13 +40,14 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
     private RealtimeRuterLibrary ruterLib;
     private GoogleMap gMap;
     private ProgressDialog loadingBox;
     private Context context = this;
     private DataDownloadListener listener;
     private CurrentUserLocation userLocation;
+    private int currentFilteredLineSelection = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +119,9 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void initUi() {
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         final ImageView imgDataLoadError = (ImageView) findViewById(R.id.imgDataLoadError);
         imgDataLoadError.setOnClickListener(new OnClickListener() {
             @Override
@@ -429,55 +434,53 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         final MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_itemlist, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.about:
                 new AboutDialog().show(getSupportFragmentManager(), null);
                 return true;
             case R.id.menuLineAll:
-                CurrentFilteredLineSelection = 0;
+                currentFilteredLineSelection = 0;
                 break;
             case R.id.menuLine1:
-                CurrentFilteredLineSelection = 1;
+                currentFilteredLineSelection = 1;
                 break;
             case R.id.menuLine2:
-                CurrentFilteredLineSelection = 2;
+                currentFilteredLineSelection = 2;
                 break;
             case R.id.menuLine3:
-                CurrentFilteredLineSelection = 3;
+                currentFilteredLineSelection = 3;
                 break;
             case R.id.menuLine4:
-                CurrentFilteredLineSelection = 4;
+                currentFilteredLineSelection = 4;
                 break;
             case R.id.menuLine5:
-                CurrentFilteredLineSelection = 5;
+                currentFilteredLineSelection = 5;
                 break;
             default:
                 return super.onOptionsItemSelected(item);
         }
 
-        LinesOverlay.highlightLine(CurrentFilteredLineSelection);
+        LinesOverlay.highlightLine(currentFilteredLineSelection);
         showAllEvents();
         return true;
     }
 
-    private int CurrentFilteredLineSelection = 0;
-
     private boolean filterEvent(int lineNumber) {
-        switch (CurrentFilteredLineSelection) {
+        switch (currentFilteredLineSelection) {
             case 0:
                 return false;
             case 4:
                 return lineNumber != 4 && lineNumber != 6;
             default:
-                return lineNumber != CurrentFilteredLineSelection;
+                return lineNumber != currentFilteredLineSelection;
         }
     }
 }

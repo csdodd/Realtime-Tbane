@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:actionBarStyle">@style/ThemeActionBar</item>
+
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/ThemeActionBar</item>
     </style>
 
-    <style name="AppTheme" parent="AppBaseTheme">
-    </style>
-
-    <style name="FullscreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowBackground">@null</item>
+    <style name="ThemeActionBar" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="titleTextColor">@android:color/black</item>
     </style>
 
 </resources>

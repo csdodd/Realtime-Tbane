@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="fill_parent" >
-    
-	<fragment
-		android:id="@+id/map"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		class="com.google.android.gms.maps.SupportMapFragment"/>
+    android:layout_height="fill_parent">
 
-	<ProgressBar
-	    android:id="@+id/spinLoader"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentBottom="true"
-	    android:layout_alignParentLeft="true"
-	    android:layout_marginBottom="20dp"
-	    android:layout_marginLeft="20dp"
-	    android:visibility="gone" />
+    <fragment
+        android:id="@+id/map"
+        class="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-	<ImageView
-	    android:id="@+id/imgDataLoadError"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentLeft="true"
-	    android:layout_alignParentTop="true"
-	    android:layout_marginLeft="12dp"
-	    android:layout_marginTop="12dp"
-	    android:src="@drawable/ic_dialog_alert_holo_light"
-	    android:contentDescription="@string/errorLoadingData"
-	    android:visibility="gone" />
+    <include layout="@layout/toolbar" />
+
+    <ProgressBar
+        android:id="@+id/spinLoader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/imgDataLoadError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="12dp"
+        android:contentDescription="@string/errorLoadingData"
+        android:src="@drawable/ic_dialog_alert_holo_light"
+        android:visibility="gone" />
 
 </RelativeLayout>
