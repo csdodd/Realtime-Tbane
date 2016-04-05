@@ -8,7 +8,7 @@
         <item name="actionBarStyle">@style/ThemeActionBar</item>
     </style>
 
-    <style name="ThemeActionBar" parent="ThemeOverlay.AppCompat.Dark">
+    <style name="ThemeActionBar" parent="ThemeOverlay.AppCompat">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:background">@android:color/transparent</item>
