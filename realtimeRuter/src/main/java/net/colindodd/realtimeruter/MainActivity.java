@@ -175,12 +175,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 try {
                     new AlertDialog.Builder(context)
                             .setMessage(getResources().getString(R.string.timeout_error))
-                            .setNeutralButton(getResources().getString(R.string.close), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    MainActivity.this.finish();
-                                }
-                            })
+                            .setNeutralButton(getResources().getString(R.string.close), null)
                             .show();
                 } catch (BadTokenException e) {
                     //Do nothing -- the app is closed.
