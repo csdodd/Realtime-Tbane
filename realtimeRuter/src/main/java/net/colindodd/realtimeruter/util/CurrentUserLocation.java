@@ -35,13 +35,13 @@ public class CurrentUserLocation {
             public void onRationaleRequested(final Permiso.IOnRationaleProvided callback, final String... permissions) {
                 callback.onRationaleProvided();
             }
-        }, Manifest.permission.ACCESS_COARSE_LOCATION);
+        }, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
     public Location getCurrentLocation() {
         try {
             final Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
 
             final LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             final String provider = lm.getBestProvider(criteria, true);
@@ -58,10 +58,10 @@ public class CurrentUserLocation {
         final double longitude = location.getLongitude();
         final double latitude = location.getLatitude();
 
-        final double minLat = 59.769535;
-        final double maxLat = 59.803397;
-        final double minLon = 10.708237;
-        final double maxLon = 10.716820;
+        final double minLat = 59;
+        final double maxLat = 60;
+        final double minLon = 10;
+        final double maxLon = 11;
 
         return minLat <= latitude && latitude <= maxLat
                 && minLon <= longitude && longitude <= maxLon;

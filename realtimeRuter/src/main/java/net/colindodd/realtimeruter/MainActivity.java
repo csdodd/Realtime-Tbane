@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (currentLocation != null) {
                     gMap.setMyLocationEnabled(true);
                     gMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude())));
+                } else {
+                    lookAtOslo();
                 }
 
                 final CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
@@ -297,6 +299,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        gMap.setPadding(0, 150, 0 , 0);
+
         LinesOverlay.renderLines(getApplicationContext(), gMap);
         formatSnippets();
         lookAtOslo();
@@ -318,11 +322,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void lookAtOslo() {
+        if (this.gMap == null) {
+            return;
+        }
+
         final LatLng Oslo = new LatLng(59.912095, 10.752182);
         final CameraUpdate center = CameraUpdateFactory.newLatLng(Oslo);
         final CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
 
-        gMap.moveCamera(center);
-        gMap.animateCamera(zoom);
+        this.gMap.moveCamera(center);
+        this.gMap.animateCamera(zoom);
     }
 }
