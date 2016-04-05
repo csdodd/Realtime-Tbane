@@ -60,7 +60,7 @@ public class LinesOverlay {
 
     private static Polyline drawLine(final GoogleMap gMap, final Station[] stations, final int colour) {
         PolylineOptions rectOptions = new PolylineOptions()
-                .width(7)
+                .width(15)
                 .color(colour);
 
         for (final Station station : stations) {
