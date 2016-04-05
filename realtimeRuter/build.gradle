@@ -8,6 +8,8 @@ android {
         applicationId "net.colindodd.realtimeruter"
         minSdkVersion 11
         targetSdkVersion 23
+        versionCode 20
+        versionName "2.0"
     }
 
     buildTypes {
