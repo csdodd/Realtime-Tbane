@@ -58,10 +58,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         super.onResume();
         Permiso.getInstance().setActivity(this);
-        loadData();
+
         if (!runForeverThread.isAlive()) {
             runForeverThread.start();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadData();
     }
 
     @Override
@@ -327,10 +333,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         final LatLng Oslo = new LatLng(59.912095, 10.752182);
-        final CameraUpdate center = CameraUpdateFactory.newLatLng(Oslo);
-        final CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
+        final CameraUpdate center = CameraUpdateFactory.newLatLngZoom(Oslo, 10);
 
         this.gMap.moveCamera(center);
-        this.gMap.animateCamera(zoom);
     }
 }
